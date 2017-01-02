@@ -8,11 +8,13 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 //Scena de juego.
 var PlayScene = {
     _rush: {}, //player
+    _glow: {}, //enemigo
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
     _jumpHight: 150, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
+   // _enemies = [],
 
     //Método constructor...
   create: function () {
@@ -21,6 +23,11 @@ var PlayScene = {
       
       this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
       this.game.world.addChild(this._rush);
+
+      this._glow = new Phaser.Sprite(this.game, 400, 250, 'glow');
+      this.game.world.addChild(this._glow);
+
+
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
 
       this.map = this.game.add.tilemap('tilemap');
@@ -56,6 +63,8 @@ var PlayScene = {
     update: function () {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
+        var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
+        var collisionWithGlow = this.game.physics.arcade.collide(this._rush, this._glow);
         var movement = this.GetMovement();
         //transitions
         switch(this._playerState)
@@ -113,10 +122,15 @@ var PlayScene = {
                     if(this._rush.scale.x < 0)
                         this._rush.scale.x *= -1;
                 }
-                else{
+                else if(movement === Direction.LEFT){
                     moveDirection.x = -this._speed;
                     if(this._rush.scale.x > 0)
-                        this._rush.scale.x *= -1; 
+                        this._rush.scale.x *= -1;
+                }
+                else{
+                    moveDirection.x = 0;
+                    /*if(this._rush.scale.x > 0)
+                        this._rush.scale.x *= -1;*/ 
                 }
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
@@ -128,9 +142,10 @@ var PlayScene = {
         this.movement(moveDirection,5,
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
+        if (collisionWithGlow) this.onPlayerFell();
     },
     
-    
+
     canJump: function(collisionWithTilemap){
         return this.isStanding() && collisionWithTilemap || this._jamping;
     },
@@ -143,6 +158,7 @@ var PlayScene = {
     checkPlayerFell: function(){
         if(this.game.physics.arcade.collide(this._rush, this.death))
             this.onPlayerFell();
+        
     },
         
     isStanding: function(){
@@ -173,7 +189,9 @@ var PlayScene = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._rush);
+        this.game.physics.arcade.enable(this._glow);
         
+
         this._rush.body.bounce.y = 0.2;
         this._rush.body.gravity.y = 20000;
         this._rush.body.gravity.x = 0;
