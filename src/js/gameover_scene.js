@@ -19,7 +19,7 @@ var GameOver = {
                                           this, 2, 1, 0);
         buttonMenu.anchor.set(0.5);
         
-        var textoReturn = this.game.add.text(0, 0, "Menú");
+        var textoReturn = this.game.add.text(0, 0, "Menu");
         textoReturn.anchor.set(0.5);
         buttonMenu.addChild(textoReturn);
     },

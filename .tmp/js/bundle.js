@@ -20,7 +20,7 @@ var GameOver = {
                                           this, 2, 1, 0);
         buttonMenu.anchor.set(0.5);
         
-        var textoReturn = this.game.add.text(0, 0, "Menú");
+        var textoReturn = this.game.add.text(0, 0, "Menu");
         textoReturn.anchor.set(0.5);
         buttonMenu.addChild(textoReturn);
     },
@@ -189,6 +189,12 @@ var PlayScene = {
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
    // _enemies = [],
+   button: {},
+   buttonMenu: {},
+   textContinue: {},
+   pauseText: {},
+   textoReturn: {},
+   keyP: {},
 
     //Método constructor...
   create: function () {
@@ -235,6 +241,18 @@ var PlayScene = {
     
     //IS called one per frame.
     update: function () {
+
+        if (this.game.input.keyboard.isDown(Phaser.Keyboard.P)){ 
+            console.log('Pause');
+            game.paused = true;
+            //this.onPause();
+        }
+
+        this.keyP = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
+        this.keyP.onDown.add(this.onPause, this);
+
+        //this.game.input.onDown.add(this.onPause, self);
+
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
         var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
@@ -318,6 +336,42 @@ var PlayScene = {
         this.checkPlayerFell();
         if (collisionWithGlow) this.onPlayerFell();
     },
+
+    onPause: function(event){
+        
+        if (game.paused){
+            this.button = this.game.add.button(400, 300, 
+                                          'button', 
+                                          this.actionOnClickContinue, 
+                                          this, 2, 1, 0);
+            this.button.anchor.set(0.5);
+            this.pauseText = this.game.add.text(400, 100, "Pause");
+            this.textContinue = this.game.add.text(0, 0, "Continue");
+            this.textContinue.anchor.set(0.5);
+            this.pauseText.anchor.set(0.5);
+            this.button.addChild(this.textContinue);
+
+            this.buttonMenu = this.game.add.button(400, 450, 
+                                          'button', 
+                                          this.actionOnClickMenu, 
+                                          this, 2, 1, 0);
+            this.buttonMenu.anchor.set(0.5);
+            this.textoReturn = this.game.add.text(0, 0, "Menu");
+            this.textoReturn.anchor.set(0.5);
+            this.buttonMenu.addChild(this.textoReturn);
+        }
+    },
+    actionOnClickContinue: function(){
+        this.button.destroy();
+        this.buttonMenu.destroy();
+        this.pauseText.destroy();
+        game.paused = false;
+    }, 
+
+    actionOnClickMenu: function(){
+        this.game.state.start('menu');
+        this.game.world.setBounds(0,0,800,600);
+    }, 
     
 
     canJump: function(collisionWithTilemap){
