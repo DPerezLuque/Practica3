@@ -83,7 +83,7 @@ var PreloaderScene = {
       // el atlasJSONHash con 'images/rush_spritesheet.png' como imagen y 'images/rush_spritesheet.json'
       //como descriptor de la animación.
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.image('tiles', 'images/simples_pimples.png');
+      this.game.load.image('tiles', 'images/mylevel1_tiles.png');
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png', 'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.game.load.image('glow', 'images/glowy2.png');
 
@@ -185,7 +185,7 @@ var PlayScene = {
     _glow: {}, //enemigo
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
-    _jumpHight: 150, //altura máxima del salto.
+    _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
    // _enemies = [],
@@ -201,11 +201,7 @@ var PlayScene = {
       //Creamos al player con un sprite por defecto.
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
       
-      this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
-      this.game.world.addChild(this._rush);
-
-      this._glow = new Phaser.Sprite(this.game, 400, 250, 'glow');
-      this.game.world.addChild(this._glow);
+      
 
 
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
@@ -214,19 +210,37 @@ var PlayScene = {
       this.map.addTilesetImage('patrones','tiles');  //y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
 
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('BackgroundLayer');
-      this.groundLayer = this.map.createLayer('GroundLayer');
+      this.backgroundLayer = this.map.createLayer('Fondo');
+      this.backgroundLayer2 = this.map.createLayer('Fondo2');
+      this.groundLayer = this.map.createLayer('Plataformas');
+      this.shadow = this.map.createLayer('Sombras');
+      
+      this.limites = this.map.createLayer('Limite');
+      this.limites.visible = false;
+
       //plano de muerte
-      this.death = this.map.createLayer('Death');
+      this.death = this.map.createLayer('Muerte');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'Death');
-      this.map.setCollisionBetween(1, 5000, true, 'GroundLayer');
+      this.map.setCollisionBetween(1, 5000, true, 'Muerte');
+      this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
       this.death.visible = false;
       //Cambia la escala a x3.
-      this.groundLayer.setScale(3,3);
-      this.backgroundLayer.setScale(3,3);
-      this.death.setScale(3,3);
-      
+      this.groundLayer.setScale(2.75,2.75);
+      this.backgroundLayer.setScale(2.75,2.75);
+      this.backgroundLayer2.setScale(2.75,2.75);
+      this.death.setScale(2.75,2.75);
+      this.shadow.setScale(2.75,2.75);
+      this.limites.setScale(2.75,2.75);
+
+      this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
+      this.game.world.addChild(this._rush);
+
+      this._glow = new Phaser.Sprite(this.game, 750, 50, 'glow');
+      this.game.world.addChild(this._glow);
+
+      this.detalles = this.map.createLayer('Detalles');
+      this.detalles.setScale(2.75,2.75);
+
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
       //nombre de la animación, frames, framerate, isloop
@@ -244,7 +258,7 @@ var PlayScene = {
 
         if (this.game.input.keyboard.isDown(Phaser.Keyboard.P)){ 
             console.log('Pause');
-            game.paused = true;
+            //game.paused = true;
             //this.onPause();
         }
 
@@ -339,33 +353,36 @@ var PlayScene = {
 
     onPause: function(event){
         
-        if (game.paused){
+        //if (game.paused){
             this.button = this.game.add.button(400, 300, 
                                           'button', 
                                           this.actionOnClickContinue, 
                                           this, 2, 1, 0);
-            this.button.anchor.set(0.5);
-            this.pauseText = this.game.add.text(400, 100, "Pause");
+            this.button.fixedToCamera = true;
+            this.pauseText = this.game.add.text(400, 100, "     Pause");
             this.textContinue = this.game.add.text(0, 0, "Continue");
-            this.textContinue.anchor.set(0.5);
-            this.pauseText.anchor.set(0.5);
+            this.textContinue.anchor.set(-0.25);
+            this.pauseText.fixedToCamera = true;
             this.button.addChild(this.textContinue);
 
             this.buttonMenu = this.game.add.button(400, 450, 
                                           'button', 
                                           this.actionOnClickMenu, 
                                           this, 2, 1, 0);
-            this.buttonMenu.anchor.set(0.5);
+            this.buttonMenu.fixedToCamera = true;
             this.textoReturn = this.game.add.text(0, 0, "Menu");
-            this.textoReturn.anchor.set(0.5);
+            this.textoReturn.anchor.set(-0.65);
             this.buttonMenu.addChild(this.textoReturn);
-        }
+
+            this.game.physics.arcade.isPaused = (this.game.physics.arcade.isPaused) ? false : true;
+        //}
     },
     actionOnClickContinue: function(){
         this.button.destroy();
         this.buttonMenu.destroy();
         this.pauseText.destroy();
-        game.paused = false;
+        //game.paused = false;
+        this.game.physics.arcade.isPaused = (this.game.physics.arcade.isPaused) ? false : true;
     }, 
 
     actionOnClickMenu: function(){
