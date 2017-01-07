@@ -188,7 +188,9 @@ var PlayScene = {
     _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
-   // _enemies = [],
+    _enemies: {},
+    _avance: -1,
+
    button: {},
    buttonMenu: {},
    textContinue: {},
@@ -200,7 +202,7 @@ var PlayScene = {
   create: function () {
       //Creamos al player con un sprite por defecto.
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-      
+       this._enemies = this.game.add.group(),
       
 
 
@@ -221,6 +223,7 @@ var PlayScene = {
       //plano de muerte
       this.death = this.map.createLayer('Muerte');
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
+      this.map.setCollisionBetween(1, 5000, true, 'Limite');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
       this.death.visible = false;
@@ -235,8 +238,9 @@ var PlayScene = {
       this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
       this.game.world.addChild(this._rush);
 
-      this._glow = new Phaser.Sprite(this.game, 750, 50, 'glow');
+      this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
       this.game.world.addChild(this._glow);
+      //this._enemies.add(this._glow);
 
       this.detalles = this.map.createLayer('Detalles');
       this.detalles.setScale(2.75,2.75);
@@ -269,8 +273,9 @@ var PlayScene = {
 
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
-        var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
+        //var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
         var collisionWithGlow = this.game.physics.arcade.collide(this._rush, this._glow);
+        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
         var movement = this.GetMovement();
         //transitions
         switch(this._playerState)
@@ -349,6 +354,26 @@ var PlayScene = {
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
         if (collisionWithGlow) this.onPlayerFell();
+
+
+        console.log (collisionWithLimits);
+        if (!collisionWithLimits){ 
+          this._glow.x += this._avance;
+          
+        }
+        else {
+          if (this._avance === -1) this._avance = 1;
+          else if (this._avance === 1) this._avance = -1;
+        }
+
+        
+        //this._glow.x --;
+
+
+        /*this._enemies.forEach(function(item) {
+        item.x --;
+        console.log(item.x);
+        });*/
     },
 
     onPause: function(event){
@@ -435,7 +460,6 @@ var PlayScene = {
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._rush);
         this.game.physics.arcade.enable(this._glow);
-        
 
         this._rush.body.bounce.y = 0.2;
         this._rush.body.gravity.y = 20000;
