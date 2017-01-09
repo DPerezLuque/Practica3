@@ -18,6 +18,8 @@ var PlayScene = {
     _enemies: {},
     _avance: -1,
 
+    aux: 0,
+
    button: {},
    buttonMenu: {},
    textContinue: {},
@@ -104,7 +106,7 @@ var PlayScene = {
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
         var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
-        var collisionWithGlow = this.game.physics.arcade.collide(this._rush, this._glow);
+        
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
         var collisionShadow = this.game.physics.arcade.collide(this._rush, this.shadow);
         var movement = this.GetMovement();
@@ -133,6 +135,7 @@ var PlayScene = {
             case PlayerState.JUMP:
                 
                 var currentJumpHeight = this._rush.y - this._initialJumpHeight;
+                this.aux = currentJumpHeight;
                 this._playerState = (currentJumpHeight*currentJumpHeight < this._jumpHight*this._jumpHight)
                     ? PlayerState.JUMP : PlayerState.FALLING;
                 break;
@@ -184,10 +187,18 @@ var PlayScene = {
         this.movement(moveDirection,5,
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
-        if (collisionWithGlow && this._rush.visible) this.onPlayerFell();
+        
+        //--COLISION CON EL ENEMIGO--
+        //Solo si el personaje es visible, revisa si colisiona con el enemigo
+        if (this._rush.visible) { 
+          
+          if (this.game.physics.arcade.collide(this._rush, this._glow)){
 
+            this.onPlayerFell();
+          }
+        }
         //--COLISION DEL ENEMIGO CON LOS LIMITES--
-        console.log (collisionWithLimits);
+        
         if (!collisionWithLimits){ 
           this._glow.body.velocity.x = this._avance*80;
           
@@ -202,11 +213,13 @@ var PlayScene = {
         console.log(item.x);
         });*/
 
+        
         //--COLISION CON LA SOMBRA--
-        console.log(this._rush.y);
-        if (/*collisionShadow &&*/ this.keyE.isDown){
+        //console.log(this._rush.y);
+    
+        if (/*collisionShadow &&*/ this.keyE.isDown  && this._rush.body.velocity.y === 0 && collisionWithTilemap){
           this._rush.visible = false;
-          moveDirection.y = moveDirection.x = 0;
+          this._rush.body.velocity.x = this._rush.body.velocity.y = 0;
         }
 
         else if (!this._rush.visible)
