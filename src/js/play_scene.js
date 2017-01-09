@@ -1,3 +1,4 @@
+
 'use strict';
 
 //Enumerados: PlayerState son los estado por los que pasa el player. Directions son las direcciones a las que se puede
@@ -23,13 +24,13 @@ var PlayScene = {
    pauseText: {},
    textoReturn: {},
    keyP: {},
-
+   keyE: {},
     //Método constructor...
   create: function () {
       //Creamos al player con un sprite por defecto.
       //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
        this._enemies = this.game.add.group(),
-      
+       this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
 
       //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
@@ -44,15 +45,17 @@ var PlayScene = {
       this.shadow = this.map.createLayer('Sombras');
       
       this.limites = this.map.createLayer('Limite');
-      this.limites.visible = false;
-
       //plano de muerte
       this.death = this.map.createLayer('Muerte');
+
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Limite');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
+      //this.map.setCollisionBetween(1, 5000, true, 'Sombras');
       this.death.visible = false;
+      this.limites.visible = false;
+
       //Cambia la escala a x3.
       this.groundLayer.setScale(2.75,2.75);
       this.backgroundLayer.setScale(2.75,2.75);
@@ -73,6 +76,7 @@ var PlayScene = {
 
       //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
+
       //nombre de la animación, frames, framerate, isloop
       this._rush.animations.add('run',
                     Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
@@ -99,9 +103,10 @@ var PlayScene = {
 
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
-        //var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
+        var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
         var collisionWithGlow = this.game.physics.arcade.collide(this._rush, this._glow);
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
+        var collisionShadow = this.game.physics.arcade.collide(this._rush, this.shadow);
         var movement = this.GetMovement();
         //transitions
         switch(this._playerState)
@@ -179,12 +184,12 @@ var PlayScene = {
         this.movement(moveDirection,5,
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
-        if (collisionWithGlow) this.onPlayerFell();
+        if (collisionWithGlow && this._rush.visible) this.onPlayerFell();
 
-
+        //--COLISION DEL ENEMIGO CON LOS LIMITES--
         console.log (collisionWithLimits);
         if (!collisionWithLimits){ 
-          this._glow.x += this._avance;
+          this._glow.body.velocity.x = this._avance*80;
           
         }
         else {
@@ -192,14 +197,20 @@ var PlayScene = {
           else if (this._avance === 1) this._avance = -1;
         }
 
-        
-        //this._glow.x --;
-
-
         /*this._enemies.forEach(function(item) {
         item.x --;
         console.log(item.x);
         });*/
+
+        //--COLISION CON LA SOMBRA--
+        console.log(this._rush.y);
+        if (/*collisionShadow &&*/ this.keyE.isDown){
+          this._rush.visible = false;
+          moveDirection.y = moveDirection.x = 0;
+        }
+
+        else if (!this._rush.visible)
+         this._rush.visible = true; 
     },
 
     onPause: function(event){
