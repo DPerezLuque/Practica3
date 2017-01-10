@@ -86,6 +86,7 @@ var PreloaderScene = {
       this.game.load.image('tiles', 'images/mylevel1_tiles.png');
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png', 'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.game.load.image('glow', 'images/glowy2.png');
+      this.game.load.image('sombras', 'images/sombras.png');
 
       //TODO 2.2a Escuchar el evento onLoadComplete con el método loadComplete que el state 'play'
       this.game.load.onLoadComplete.add(this.loadComplete, this);
@@ -191,6 +192,8 @@ var PlayScene = {
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
     _enemies: {},
     _avance: -1,
+    _sombra: {},
+    paused: false,
 
     aux: 0,
 
@@ -217,6 +220,9 @@ var PlayScene = {
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');
       this.backgroundLayer2 = this.map.createLayer('Fondo2');
+
+     
+
       this.groundLayer = this.map.createLayer('Plataformas');
       this.shadow = this.map.createLayer('Sombras');
       
@@ -239,6 +245,11 @@ var PlayScene = {
       this.death.setScale(2.75,2.75);
       this.shadow.setScale(2.75,2.75);
       this.limites.setScale(2.75,2.75);
+
+       //Sombras en las que ocultarte
+      this._sombra = new Phaser.Sprite(this.game, 735, 170, 'sombras');
+      this.game.world.addChild(this._sombra);
+      this._sombra.scale.setTo(0.13,0.27);
 
       this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
       this.game.world.addChild(this._rush);
@@ -266,23 +277,33 @@ var PlayScene = {
     //IS called one per frame.
     update: function () {
 
-        if (this.game.input.keyboard.isDown(Phaser.Keyboard.P)){ 
+        /*if (this.game.input.keyboard.isDown(Phaser.Keyboard.P)){ 
             console.log('Pause');
             //game.paused = true;
             //this.onPause();
-        }
+        }*/
 
         this.keyP = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
-        this.keyP.onDown.add(this.onPause, this);
+        //this.keyP.onDown.add(this.onPause, this);
+        
+        //console.log(this.paused);
+        if (!this.paused){
+
+          if (this.keyP.isDown){
+            this.paused = true;
+            this.onPause();
+            
+          }
+        }
 
         //this.game.input.onDown.add(this.onPause, self);
 
         var moveDirection = new Phaser.Point(0, 0);
         var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
         var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
-        
+        var triggerSombras = this.game.physics.arcade.collide(this._rush, this._sombra);
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
-        var collisionShadow = this.game.physics.arcade.collide(this._rush, this.shadow);
+        //var collisionShadow = this.game.physics.arcade.collide(this._rush, this.shadow);
         var movement = this.GetMovement();
         //transitions
         switch(this._playerState)
@@ -389,9 +410,9 @@ var PlayScene = {
 
         
         //--COLISION CON LA SOMBRA--
-        //console.log(this._rush.y);
+        //console.log(this.checkOverlap(this._rush, this._sombra));
     
-        if (/*collisionShadow &&*/ this.keyE.isDown  && this._rush.body.velocity.y === 0 && collisionWithTilemap){
+        if (this.checkOverlap(this._rush, this._sombra) &&collisionWithTilemap && this.keyE.isDown  && this._rush.body.velocity.y === 0){
           this._rush.visible = false;
           this._rush.body.velocity.x = this._rush.body.velocity.y = 0;
         }
@@ -400,9 +421,17 @@ var PlayScene = {
          this._rush.visible = true; 
     },
 
+    checkOverlap: function (spriteA, spriteB){
+      var boundsA = spriteA.getBounds();
+      var boundsB = spriteB.getBounds();
+
+      return Phaser.Rectangle.intersects(boundsA, boundsB); 
+    },
+
     onPause: function(event){
         
-        //if (game.paused){
+        //this.keyP = false;
+        if (this.paused){
             this.button = this.game.add.button(400, 300, 
                                           'button', 
                                           this.actionOnClickContinue, 
@@ -423,15 +452,19 @@ var PlayScene = {
             this.textoReturn.anchor.set(-0.65);
             this.buttonMenu.addChild(this.textoReturn);
 
-            this.game.physics.arcade.isPaused = (this.game.physics.arcade.isPaused) ? false : true;
-        //}
+            this.game.physics.arcade.isPaused = true;
+
+            //if(this.keyP) this.actionOnClickContinue();
+        }
     },
     actionOnClickContinue: function(){
+        console.log ("He entrado en continue");
         this.button.destroy();
         this.buttonMenu.destroy();
         this.pauseText.destroy();
         //game.paused = false;
-        this.game.physics.arcade.isPaused = (this.game.physics.arcade.isPaused) ? false : true;
+        this.game.physics.arcade.isPaused = false;
+        this.paused = false;
     }, 
 
     actionOnClickMenu: function(){

@@ -44,6 +44,7 @@ var PreloaderScene = {
       this.game.load.image('tiles', 'images/mylevel1_tiles.png');
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png', 'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.game.load.image('glow', 'images/glowy2.png');
+      this.game.load.image('sombras', 'images/sombras.png');
 
       //TODO 2.2a Escuchar el evento onLoadComplete con el método loadComplete que el state 'play'
       this.game.load.onLoadComplete.add(this.loadComplete, this);
