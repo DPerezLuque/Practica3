@@ -45,14 +45,11 @@ var PlayScene = {
 
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');
-      this.backgroundLayer2 = this.map.createLayer('Fondo2');
-
-     
-
       this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
-      this.mapDark = this.map.createLayer('Sombras'); //capa de sombras en las que esconderse
-      this.limites = this.map.createLayer('Limite'); //capa de los límites para los glows
+      this.limites = this.map.createLayer('Limites'); //capa de los límites para los glows
+      this.limitesJugador = this.map.createLayer('LimiteJugador'); //capa de los límites para los glows
       this.death = this.map.createLayer('Muerte');//capa de muerte
+
 
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Limite');
@@ -65,23 +62,22 @@ var PlayScene = {
       //Cambia la escala a x2.75.
       this.groundLayer.setScale(2.75,2.75);
       this.backgroundLayer.setScale(2.75,2.75);
-      this.backgroundLayer2.setScale(2.75,2.75);
       this.death.setScale(2.75,2.75);
-      this.mapDark.setScale(2.75,2.75);
       this.limites.setScale(2.75,2.75);
+      this.limitesJugador.setScale(2.75,2.75);
 
        //Sombras en las que ocultarte
       this._dark = new Phaser.Sprite(this.game, 735, 170, 'sombras');
       this.game.world.addChild(this._dark);
       this._dark.scale.setTo(0.13,0.27);
-      this._darkness.add(this._dark);
+      //this._darkness.add(this._dark);
 
       this._shadow = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
       this.game.world.addChild(this._shadow);
 
       this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
       this.game.world.addChild(this._glow);
-      this._enemies.add(this._glow);
+      //this._enemies.add(this._glow);
 
       this.detalles = this.map.createLayer('Detalles');
       this.detalles.setScale(2.75,2.75);
@@ -114,8 +110,9 @@ var PlayScene = {
         var moveDirection = new Phaser.Point(0, 0);
 
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
-        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._darkness);
-        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._enemies);
+        var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
+        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._dark);
+        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
         
         var movement = this.GetMovement();
 
@@ -198,7 +195,7 @@ var PlayScene = {
         //Solo si el personaje es visible, revisa si colisiona con el enemigo
         if (this._shadow.visible) { 
           
-          if (this.game.physics.arcade.collide(this._shadow, this._enemies)){
+          if (this.game.physics.arcade.collide(this._shadow, this._glow)){
 
             this.onPlayerFell();
           }
