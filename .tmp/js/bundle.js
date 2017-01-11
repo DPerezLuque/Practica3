@@ -1,4 +1,30 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var EndScene = {
+	create: function () {
+        console.log("Primer nivel terminado");
+       
+        var goText = this.game.add.text(400, 100, "Dislumbré un destello y creí que eras tú.\n Pronto lograré alcanzarte...");
+        goText.anchor.set(0.5);
+        
+        var buttonMenu = this.game.add.button(400, 300, 
+                                          'button', 
+                                          this.actionOnClick, 
+                                          this, 2, 1, 0);
+        buttonMenu.anchor.set(0.5);
+        
+        var textoReturn = this.game.add.text(0, 0, "Menu");
+        textoReturn.anchor.set(0.5);
+        buttonMenu.addChild(textoReturn);
+    },
+
+    actionOnClick: function(){
+        this.game.state.start('menu');
+        this.game.world.setBounds(0,0,800,600);
+    } 
+};
+
+module.exports = EndScene;
+},{}],2:[function(require,module,exports){
 var GameOver = {
     create: function () {
         console.log("Game Over");
@@ -13,7 +39,6 @@ var GameOver = {
         goText.anchor.set(0.5);
         button.addChild(text);
         
-        //TODO 8 crear un boton con el texto 'Return Main Menu' que nos devuelva al menu del juego.
         var buttonMenu = this.game.add.button(400, 450, 
                                           'button', 
                                           this.actionOnClick2, 
@@ -24,8 +49,6 @@ var GameOver = {
         textoReturn.anchor.set(0.5);
         buttonMenu.addChild(textoReturn);
     },
-    
-    //TODO 7 declarar el callback del boton.
 
     actionOnClick1: function(){
         this.game.state.start('preloader');
@@ -39,29 +62,29 @@ var GameOver = {
 };
 
 module.exports = GameOver;
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';
 
-//TODO 1.1 Require de las escenas, play_scene, gameover_scene y menu_scene.
 var PlayScene = require('./play_scene.js');
 var GameOver = require('./gameover_scene.js');
 var MenuScene = require('./menu_scene.js');
+var EndScene = require('./end_scene.js')
 
 //  The Google WebFont Loader will look for this object, so create it before loading the script.
-
-
-
 
 var BootScene = {
   preload: function () {
     // load here assets required for the loading screen
+    var style = { font: "65px Arial", fill: "#ffffff", align: "center" }
+    var text = this.game.add.text(400, 100, "Lost Shadow", style);
+    text.anchor.set(0.6);
+
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('logo', 'images/phaser.png');
   },
 
   create: function () {
-    //this.game.state.start('preloader');
       this.game.state.start('menu');
       
   }
@@ -76,29 +99,23 @@ var PreloaderScene = {
     this.game.stage.backgroundColor = "#000000";
     
     
-    
     this.load.onLoadStart.add(this.loadStart, this);
-    //TODO 2.1 Cargar el tilemap images/map.json con el nombre de la cache 'tilemap'.
-      //la imagen 'images/simples_pimples.png' con el nombre de la cache 'tiles' y
-      // el atlasJSONHash con 'images/rush_spritesheet.png' como imagen y 'images/rush_spritesheet.json'
-      //como descriptor de la animación.
+  
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/mylevel1_tiles.png');
       this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png', 'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
       this.game.load.image('glow', 'images/glowy2.png');
       this.game.load.image('sombras', 'images/sombras.png');
+      this.game.load.image('light', 'images/light.png');
 
-      //TODO 2.2a Escuchar el evento onLoadComplete con el método loadComplete que el state 'play'
       this.game.load.onLoadComplete.add(this.loadComplete, this);
   },
 
   loadStart: function () {
-    //this.game.state.start('play');
     console.log("Game Assets Loading ...");
   },
     
     
-     //TODO 2.2b function loadComplete()
      loadComplete: function(){
       this.game.state.start('play');
         console.log ("Load completed");
@@ -123,30 +140,26 @@ var wfconfig = {
  
 };
  
-//TODO 3.2 Cargar Google font cuando la página esté cargada con wfconfig.
 window.onload = function () {
 
   WebFont.load(wfconfig); //carga la fuente definida en el objeto anterior.
   
 };
-//TODO 3.3 La creación del juego y la asignación de los states se hará en el método init().
 
 window.init = function () {
-  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(800, 900, Phaser.AUTO, 'game');
 
-//TODO 1.2 Añadir los states 'boot' BootScene, 'menu' MenuScene, 'preloader' PreloaderScene, 'play' PlayScene, 'gameOver' GameOver.
   game.state.add('boot', BootScene);
   game.state.add('menu', MenuScene);
   game.state.add('preloader', PreloaderScene);
   game.state.add('play', PlayScene);
   game.state.add('gameOver', GameOver);
-
-//TODO 1.3 iniciar el state 'boot'. 
-game.state.start('boot');
+  game.state.add('endScene', EndScene);
+  game.state.start('boot');
     
 };
 
-},{"./gameover_scene.js":1,"./menu_scene.js":3,"./play_scene.js":4}],3:[function(require,module,exports){
+},{"./end_scene.js":1,"./gameover_scene.js":2,"./menu_scene.js":4,"./play_scene.js":5}],4:[function(require,module,exports){
 var MenuScene = {
     create: function () {
         
@@ -172,7 +185,7 @@ var MenuScene = {
 };
 
 module.exports = MenuScene;
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 'use strict';
 
@@ -184,79 +197,116 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 //Scena de juego.
 var PlayScene = {
     _shadow: {}, //player
-    _glow: {}, //enemigo
+
+   //enemigos
+    _glow: {}, _glow2: {}, _glow3: {}, _glow4: {}, _glow5: {},
+    
+    //sombras
+    _dark: {}, _dark2: {}, _dark3: {}, _dark4: {}, _dark5: {},
+
+    _light: {},
+
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
     _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
-    _enemies: {},
-    _darkness: {},
-    _avance: -1,
-    _dark: {},
-    paused: false,
+    _avance: -1, _avance2: -1, _avance3: -1, _avance4: -1,
 
     aux: 0,
+
+    paused: false,
 
     button: {},
     buttonMenu: {},
     textContinue: {},
     pauseText: {},
     textoReturn: {},
+
     keyP: {},
     keyE: {},
 
     //Método constructor...
   create: function () {
-      
-       this._enemies = this.game.add.group();
-       this._darkness = this.game.add.group();
 
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
+       this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT, Phaser.Keyboard.SPACEBAR ]);
+
 
       this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('patrones','tiles');  
+      this.map.addTilesetImage('mylevel1_tiles','tiles');  
 
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('Fondo');
+      this.backgroundLayer = this.map.createLayer('Fondo');//capa de fondo
+
+
+       //----SOMBRAS EN LAS QUE OCULTARTE----
+      this._dark = new Phaser.Sprite(this.game, 435, 770, 'sombras');
+      this.game.world.addChild(this._dark);
+      this._dark.scale.setTo(0.1,0.2);
+
+      this._dark2 = new Phaser.Sprite(this.game, 90, 450, 'sombras');
+      this.game.world.addChild(this._dark2);
+      this._dark2.scale.setTo(0.1,0.2);
+
+      this._dark3 = new Phaser.Sprite(this.game, 380, 290, 'sombras');
+      this.game.world.addChild(this._dark3);
+      this._dark3.scale.setTo(0.1,0.2);
+
+      this._dark4 = new Phaser.Sprite(this.game, 320, 25, 'sombras');
+      this.game.world.addChild(this._dark4);
+      this._dark4.scale.setTo(0.1,0.2);
+
+      //Capas del mapa
       this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
       this.limites = this.map.createLayer('Limites'); //capa de los límites para los glows
-      this.limitesJugador = this.map.createLayer('LimiteJugador'); //capa de los límites para los glows
+      this.limitesJugador = this.map.createLayer('LimitePersonaje'); //capa de los límites para los glows
       this.death = this.map.createLayer('Muerte');//capa de muerte
 
-
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'Limite');
+      this.map.setCollisionBetween(1, 5000, true, 'Limites');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
+      this.map.setCollisionBetween(1, 5000, true, 'LimitePersonaje');
     
       this.death.visible = false;
       this.limites.visible = false;
+      this.limitesJugador.visible = false;
 
-      //Cambia la escala a x2.75.
-      this.groundLayer.setScale(2.75,2.75);
-      this.backgroundLayer.setScale(2.75,2.75);
-      this.death.setScale(2.75,2.75);
-      this.limites.setScale(2.75,2.75);
-      this.limitesJugador.setScale(2.75,2.75);
-
-       //Sombras en las que ocultarte
-      this._dark = new Phaser.Sprite(this.game, 735, 170, 'sombras');
-      this.game.world.addChild(this._dark);
-      this._dark.scale.setTo(0.13,0.27);
-      //this._darkness.add(this._dark);
-
-      this._shadow = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
+      //----PERSONAJE----
+      this._shadow = new Phaser.Sprite(this.game, 50, 800, 'rush_idle01');
       this.game.world.addChild(this._shadow);
 
-      this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
+      //----ENEMIGOS----
+      this._glow = new Phaser.Sprite(this.game, 500, 780, 'glow');
       this.game.world.addChild(this._glow);
-      //this._enemies.add(this._glow);
 
+      this._glow2 = new Phaser.Sprite(this.game, 200, 470, 'glow');
+      this.game.world.addChild(this._glow2);
+
+      this._glow3 = new Phaser.Sprite(this.game, 500, 310, 'glow');
+      this.game.world.addChild(this._glow3);
+
+      this._glow4 = new Phaser.Sprite(this.game, 150, 45, 'glow');
+      this.game.world.addChild(this._glow4);
+
+      //----LIGHT----
+      this._light = new Phaser.Sprite(this.game, 5, 0, 'light');
+      this.game.world.addChild(this._light);
+      this._light.scale.setTo(0.7,0.7);
+
+      //Los detalles se general al final para que los monolitos que dan sombra 
+      //se vean delante del jugador y creen un falso 3D
       this.detalles = this.map.createLayer('Detalles');
-      this.detalles.setScale(2.75,2.75);
       
+      //Cambia la escala a x2
+      this.groundLayer.setScale(2,2);
+      this.backgroundLayer.setScale(2,2);
+      this.death.setScale(2.,2);
+      this.limites.setScale(2,2);
+      this.limitesJugador.setScale(2,2);
+      this.detalles.setScale(2,2);
 
       //nombre de la animación, frames, framerate, isloop
       this._shadow.animations.add('run',
@@ -286,8 +336,18 @@ var PlayScene = {
 
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
         var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
+
+        /*//Trigger de sombras
         var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._dark);
+        var triggerSombras2 = this.game.physics.arcade.collide(this._shadow, this._dark2);
+        var triggerSombras3 = this.game.physics.arcade.collide(this._shadow, this._dark3);
+        var triggerSombras4 = this.game.physics.arcade.collide(this._shadow, this._dark4);*/
+        
+        //Colisiones de los enemigos
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
+        var collisionWithLimits2 = this.game.physics.arcade.collide(this.limites, this._glow2);
+        var collisionWithLimits3 = this.game.physics.arcade.collide(this.limites, this._glow3);
+        var collisionWithLimits4 = this.game.physics.arcade.collide(this.limites, this._glow4);
         
         var movement = this.GetMovement();
 
@@ -365,37 +425,55 @@ var PlayScene = {
         this.movement(moveDirection,5,
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
+        this.checkPlayerWin();
         
         //--COLISION CON EL ENEMIGO--
         //Solo si el personaje es visible, revisa si colisiona con el enemigo
         if (this._shadow.visible) { 
           
-          if (this.game.physics.arcade.collide(this._shadow, this._glow)){
-
-            this.onPlayerFell();
-          }
-        }
-
-        //--COLISION DEL ENEMIGO CON LOS LIMITES--
-        
-        if (!collisionWithLimits){ 
-          this._glow.body.velocity.x = this._avance*80;
+          if (this.game.physics.arcade.collide(this._shadow, this._glow)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow2)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow3)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow4)) this.onPlayerFell();
           
         }
+
+        //--COLISION DE LOS ENEMIGOS CON LOS LIMITES--
+        //glow
+        if (!collisionWithLimits) this._glow.body.velocity.x = this._avance*80;
+        
         else {
           if (this._avance === -1) this._avance = 1;
           else if (this._avance === 1) this._avance = -1;
         }
-
-        /*this._enemies.forEach(function(item) {
-        item.x --;
-        console.log(item.x);
-        });*/
-
+        //glow2
+        if (!collisionWithLimits2) this._glow2.body.velocity.x = this._avance2*80;
+        
+        else {
+          if (this._avance2 === -1) this._avance2 = 1;
+          else if (this._avance2 === 1) this._avance2 = -1;
+        }
+        //glow3
+        if (!collisionWithLimits3) this._glow3.body.velocity.x = this._avance3*80;
+        
+        else {
+          if (this._avance3 === -1) this._avance3 = 1;
+          else if (this._avance3 === 1) this._avance3 = -1;
+        }
+        //glow4
+        if (!collisionWithLimits4) this._glow4.body.velocity.x = this._avance4*80;
+          
+        else {
+          if (this._avance4 === -1) this._avance4 = 1;
+          else if (this._avance4 === 1) this._avance4 = -1;
+        }
         
         //--COLISION CON LA SOMBRA--
     
-        if (this.checkOverlap(this._shadow, this._dark) &&collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
+        if ((this.checkOverlap(this._shadow, this._dark) || this.checkOverlap(this._shadow, this._dark2) 
+              || this.checkOverlap(this._shadow, this._dark3) || this.checkOverlap(this._shadow, this._dark4))
+                  && collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
+
           this._shadow.visible = false;
           this._shadow.body.velocity.x = this._shadow.body.velocity.y = 0;
         }
@@ -448,8 +526,10 @@ var PlayScene = {
     }, 
 
     actionOnClickMenu: function(){
+        this.paused = false;
         this.game.state.start('menu');
         this.game.world.setBounds(0,0,800,600);
+
     }, 
     
 
@@ -460,10 +540,20 @@ var PlayScene = {
     onPlayerFell: function(){
         this.game.state.start('gameOver');
     },
-    
+
     checkPlayerFell: function(){
         if(this.game.physics.arcade.collide(this._shadow, this.death))
             this.onPlayerFell();
+        
+    },
+
+    onPlayerWin: function(){
+        this.game.state.start('endScene');
+    },
+
+    checkPlayerWin: function(){
+        if(this.game.physics.arcade.collide(this._shadow, this._light))
+            this.onPlayerWin();
         
     },
         
@@ -498,7 +588,15 @@ var PlayScene = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._shadow);
+
+        //Fisicas de los enemigos
         this.game.physics.arcade.enable(this._glow);
+        this.game.physics.arcade.enable(this._glow2);
+        this.game.physics.arcade.enable(this._glow3);
+        this.game.physics.arcade.enable(this._glow4);
+
+        //Físicas de light
+        this.game.physics.arcade.enable(this._light);
 
         this._shadow.body.bounce.y = 0.2;
         this._shadow.body.gravity.y = 20000;
@@ -516,10 +614,7 @@ var PlayScene = {
 
     }
     
-    //TODO 9 destruir los recursos tilemap, tiles y logo.
-     //cache.removeImage(tilemap);
-     //cache.removeImage(tiles);
 };
 
 module.exports = PlayScene;
-},{}]},{},[2]);
+},{}]},{},[3]);

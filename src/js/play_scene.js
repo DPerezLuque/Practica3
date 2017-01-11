@@ -9,79 +9,116 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 //Scena de juego.
 var PlayScene = {
     _shadow: {}, //player
-    _glow: {}, //enemigo
+
+   //enemigos
+    _glow: {}, _glow2: {}, _glow3: {}, _glow4: {}, _glow5: {},
+    
+    //sombras
+    _dark: {}, _dark2: {}, _dark3: {}, _dark4: {}, _dark5: {},
+
+    _light: {},
+
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
     _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
-    _enemies: {},
-    _darkness: {},
-    _avance: -1,
-    _dark: {},
-    paused: false,
+    _avance: -1, _avance2: -1, _avance3: -1, _avance4: -1,
 
     aux: 0,
+
+    paused: false,
 
     button: {},
     buttonMenu: {},
     textContinue: {},
     pauseText: {},
     textoReturn: {},
+
     keyP: {},
     keyE: {},
 
     //Método constructor...
   create: function () {
-      
-       this._enemies = this.game.add.group();
-       this._darkness = this.game.add.group();
 
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
+       this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT, Phaser.Keyboard.SPACEBAR ]);
+
 
       this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('patrones','tiles');  
+      this.map.addTilesetImage('mylevel1_tiles','tiles');  
 
       //Creacion de las layers
-      this.backgroundLayer = this.map.createLayer('Fondo');
+      this.backgroundLayer = this.map.createLayer('Fondo');//capa de fondo
+
+
+       //----SOMBRAS EN LAS QUE OCULTARTE----
+      this._dark = new Phaser.Sprite(this.game, 435, 770, 'sombras');
+      this.game.world.addChild(this._dark);
+      this._dark.scale.setTo(0.1,0.2);
+
+      this._dark2 = new Phaser.Sprite(this.game, 90, 450, 'sombras');
+      this.game.world.addChild(this._dark2);
+      this._dark2.scale.setTo(0.1,0.2);
+
+      this._dark3 = new Phaser.Sprite(this.game, 380, 290, 'sombras');
+      this.game.world.addChild(this._dark3);
+      this._dark3.scale.setTo(0.1,0.2);
+
+      this._dark4 = new Phaser.Sprite(this.game, 320, 25, 'sombras');
+      this.game.world.addChild(this._dark4);
+      this._dark4.scale.setTo(0.1,0.2);
+
+      //Capas del mapa
       this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
       this.limites = this.map.createLayer('Limites'); //capa de los límites para los glows
-      this.limitesJugador = this.map.createLayer('LimiteJugador'); //capa de los límites para los glows
+      this.limitesJugador = this.map.createLayer('LimitePersonaje'); //capa de los límites para los glows
       this.death = this.map.createLayer('Muerte');//capa de muerte
 
-
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
-      this.map.setCollisionBetween(1, 5000, true, 'Limite');
+      this.map.setCollisionBetween(1, 5000, true, 'Limites');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
+      this.map.setCollisionBetween(1, 5000, true, 'LimitePersonaje');
     
       this.death.visible = false;
       this.limites.visible = false;
+      this.limitesJugador.visible = false;
 
-      //Cambia la escala a x2.75.
-      this.groundLayer.setScale(2.75,2.75);
-      this.backgroundLayer.setScale(2.75,2.75);
-      this.death.setScale(2.75,2.75);
-      this.limites.setScale(2.75,2.75);
-      this.limitesJugador.setScale(2.75,2.75);
-
-       //Sombras en las que ocultarte
-      this._dark = new Phaser.Sprite(this.game, 735, 170, 'sombras');
-      this.game.world.addChild(this._dark);
-      this._dark.scale.setTo(0.13,0.27);
-      //this._darkness.add(this._dark);
-
-      this._shadow = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
+      //----PERSONAJE----
+      this._shadow = new Phaser.Sprite(this.game, 50, 800, 'rush_idle01');
       this.game.world.addChild(this._shadow);
 
-      this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
+      //----ENEMIGOS----
+      this._glow = new Phaser.Sprite(this.game, 500, 780, 'glow');
       this.game.world.addChild(this._glow);
-      //this._enemies.add(this._glow);
 
+      this._glow2 = new Phaser.Sprite(this.game, 200, 470, 'glow');
+      this.game.world.addChild(this._glow2);
+
+      this._glow3 = new Phaser.Sprite(this.game, 500, 310, 'glow');
+      this.game.world.addChild(this._glow3);
+
+      this._glow4 = new Phaser.Sprite(this.game, 150, 45, 'glow');
+      this.game.world.addChild(this._glow4);
+
+      //----LIGHT----
+      this._light = new Phaser.Sprite(this.game, 5, 0, 'light');
+      this.game.world.addChild(this._light);
+      this._light.scale.setTo(0.7,0.7);
+
+      //Los detalles se general al final para que los monolitos que dan sombra 
+      //se vean delante del jugador y creen un falso 3D
       this.detalles = this.map.createLayer('Detalles');
-      this.detalles.setScale(2.75,2.75);
       
+      //Cambia la escala a x2
+      this.groundLayer.setScale(2,2);
+      this.backgroundLayer.setScale(2,2);
+      this.death.setScale(2.,2);
+      this.limites.setScale(2,2);
+      this.limitesJugador.setScale(2,2);
+      this.detalles.setScale(2,2);
 
       //nombre de la animación, frames, framerate, isloop
       this._shadow.animations.add('run',
@@ -111,8 +148,18 @@ var PlayScene = {
 
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
         var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
+
+        /*//Trigger de sombras
         var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._dark);
+        var triggerSombras2 = this.game.physics.arcade.collide(this._shadow, this._dark2);
+        var triggerSombras3 = this.game.physics.arcade.collide(this._shadow, this._dark3);
+        var triggerSombras4 = this.game.physics.arcade.collide(this._shadow, this._dark4);*/
+        
+        //Colisiones de los enemigos
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
+        var collisionWithLimits2 = this.game.physics.arcade.collide(this.limites, this._glow2);
+        var collisionWithLimits3 = this.game.physics.arcade.collide(this.limites, this._glow3);
+        var collisionWithLimits4 = this.game.physics.arcade.collide(this.limites, this._glow4);
         
         var movement = this.GetMovement();
 
@@ -190,37 +237,55 @@ var PlayScene = {
         this.movement(moveDirection,5,
                       this.backgroundLayer.layer.widthInPixels*this.backgroundLayer.scale.x - 10);
         this.checkPlayerFell();
+        this.checkPlayerWin();
         
         //--COLISION CON EL ENEMIGO--
         //Solo si el personaje es visible, revisa si colisiona con el enemigo
         if (this._shadow.visible) { 
           
-          if (this.game.physics.arcade.collide(this._shadow, this._glow)){
-
-            this.onPlayerFell();
-          }
-        }
-
-        //--COLISION DEL ENEMIGO CON LOS LIMITES--
-        
-        if (!collisionWithLimits){ 
-          this._glow.body.velocity.x = this._avance*80;
+          if (this.game.physics.arcade.collide(this._shadow, this._glow)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow2)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow3)) this.onPlayerFell();
+          else if (this.game.physics.arcade.collide(this._shadow, this._glow4)) this.onPlayerFell();
           
         }
+
+        //--COLISION DE LOS ENEMIGOS CON LOS LIMITES--
+        //glow
+        if (!collisionWithLimits) this._glow.body.velocity.x = this._avance*80;
+        
         else {
           if (this._avance === -1) this._avance = 1;
           else if (this._avance === 1) this._avance = -1;
         }
-
-        /*this._enemies.forEach(function(item) {
-        item.x --;
-        console.log(item.x);
-        });*/
-
+        //glow2
+        if (!collisionWithLimits2) this._glow2.body.velocity.x = this._avance2*80;
+        
+        else {
+          if (this._avance2 === -1) this._avance2 = 1;
+          else if (this._avance2 === 1) this._avance2 = -1;
+        }
+        //glow3
+        if (!collisionWithLimits3) this._glow3.body.velocity.x = this._avance3*80;
+        
+        else {
+          if (this._avance3 === -1) this._avance3 = 1;
+          else if (this._avance3 === 1) this._avance3 = -1;
+        }
+        //glow4
+        if (!collisionWithLimits4) this._glow4.body.velocity.x = this._avance4*80;
+          
+        else {
+          if (this._avance4 === -1) this._avance4 = 1;
+          else if (this._avance4 === 1) this._avance4 = -1;
+        }
         
         //--COLISION CON LA SOMBRA--
     
-        if (this.checkOverlap(this._shadow, this._dark) &&collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
+        if ((this.checkOverlap(this._shadow, this._dark) || this.checkOverlap(this._shadow, this._dark2) 
+              || this.checkOverlap(this._shadow, this._dark3) || this.checkOverlap(this._shadow, this._dark4))
+                  && collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
+
           this._shadow.visible = false;
           this._shadow.body.velocity.x = this._shadow.body.velocity.y = 0;
         }
@@ -273,8 +338,10 @@ var PlayScene = {
     }, 
 
     actionOnClickMenu: function(){
+        this.paused = false;
         this.game.state.start('menu');
         this.game.world.setBounds(0,0,800,600);
+
     }, 
     
 
@@ -285,10 +352,20 @@ var PlayScene = {
     onPlayerFell: function(){
         this.game.state.start('gameOver');
     },
-    
+
     checkPlayerFell: function(){
         if(this.game.physics.arcade.collide(this._shadow, this.death))
             this.onPlayerFell();
+        
+    },
+
+    onPlayerWin: function(){
+        this.game.state.start('endScene');
+    },
+
+    checkPlayerWin: function(){
+        if(this.game.physics.arcade.collide(this._shadow, this._light))
+            this.onPlayerWin();
         
     },
         
@@ -323,7 +400,15 @@ var PlayScene = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._shadow);
+
+        //Fisicas de los enemigos
         this.game.physics.arcade.enable(this._glow);
+        this.game.physics.arcade.enable(this._glow2);
+        this.game.physics.arcade.enable(this._glow3);
+        this.game.physics.arcade.enable(this._glow4);
+
+        //Físicas de light
+        this.game.physics.arcade.enable(this._light);
 
         this._shadow.body.bounce.y = 0.2;
         this._shadow.body.gravity.y = 20000;
@@ -341,9 +426,6 @@ var PlayScene = {
 
     }
     
-    //TODO 9 destruir los recursos tilemap, tiles y logo.
-     //cache.removeImage(tilemap);
-     //cache.removeImage(tiles);
 };
 
 module.exports = PlayScene;
