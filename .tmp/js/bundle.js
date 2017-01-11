@@ -183,7 +183,7 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 
 //Scena de juego.
 var PlayScene = {
-    _rush: {}, //player
+    _shadow: {}, //player
     _glow: {}, //enemigo
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
@@ -191,31 +191,32 @@ var PlayScene = {
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
     _enemies: {},
+    _darkness: {},
     _avance: -1,
-    _sombra: {},
+    _dark: {},
     paused: false,
 
     aux: 0,
 
-   button: {},
-   buttonMenu: {},
-   textContinue: {},
-   pauseText: {},
-   textoReturn: {},
-   keyP: {},
-   keyE: {},
+    button: {},
+    buttonMenu: {},
+    textContinue: {},
+    pauseText: {},
+    textoReturn: {},
+    keyP: {},
+    keyE: {},
+
     //Método constructor...
   create: function () {
-      //Creamos al player con un sprite por defecto.
-      //TODO 5 Creamos a rush 'rush'  con el sprite por defecto en el 10, 10 con la animación por defecto 'rush_idle01'
-       this._enemies = this.game.add.group(),
+      
+       this._enemies = this.game.add.group();
+       this._darkness = this.game.add.group();
+
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
 
-      //TODO 4: Cargar el tilemap 'tilemap' y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
-
       this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('patrones','tiles');  //y asignarle al tileset 'patrones' la imagen de sprites 'tiles'
+      this.map.addTilesetImage('patrones','tiles');  
 
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');
@@ -223,53 +224,50 @@ var PlayScene = {
 
      
 
-      this.groundLayer = this.map.createLayer('Plataformas');
-      this.shadow = this.map.createLayer('Sombras');
-      
-      this.limites = this.map.createLayer('Limite');
-      //plano de muerte
-      this.death = this.map.createLayer('Muerte');
+      this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
+      this.mapDark = this.map.createLayer('Sombras'); //capa de sombras en las que esconderse
+      this.limites = this.map.createLayer('Limite'); //capa de los límites para los glows
+      this.death = this.map.createLayer('Muerte');//capa de muerte
 
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Limite');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
-      //this.map.setCollisionBetween(1, 5000, true, 'Sombras');
+    
       this.death.visible = false;
       this.limites.visible = false;
 
-      //Cambia la escala a x3.
+      //Cambia la escala a x2.75.
       this.groundLayer.setScale(2.75,2.75);
       this.backgroundLayer.setScale(2.75,2.75);
       this.backgroundLayer2.setScale(2.75,2.75);
       this.death.setScale(2.75,2.75);
-      this.shadow.setScale(2.75,2.75);
+      this.mapDark.setScale(2.75,2.75);
       this.limites.setScale(2.75,2.75);
 
        //Sombras en las que ocultarte
-      this._sombra = new Phaser.Sprite(this.game, 735, 170, 'sombras');
-      this.game.world.addChild(this._sombra);
-      this._sombra.scale.setTo(0.13,0.27);
+      this._dark = new Phaser.Sprite(this.game, 735, 170, 'sombras');
+      this.game.world.addChild(this._dark);
+      this._dark.scale.setTo(0.13,0.27);
+      this._darkness.add(this._dark);
 
-      this._rush = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
-      this.game.world.addChild(this._rush);
+      this._shadow = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
+      this.game.world.addChild(this._shadow);
 
       this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
       this.game.world.addChild(this._glow);
-      //this._enemies.add(this._glow);
+      this._enemies.add(this._glow);
 
       this.detalles = this.map.createLayer('Detalles');
       this.detalles.setScale(2.75,2.75);
-
-      //this.groundLayer.resizeWorld(); //resize world and adjust to the screen
       
 
       //nombre de la animación, frames, framerate, isloop
-      this._rush.animations.add('run',
+      this._shadow.animations.add('run',
                     Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
-      this._rush.animations.add('stop',
+      this._shadow.animations.add('stop',
                     Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
-      this._rush.animations.add('jump',
+      this._shadow.animations.add('jump',
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
       this.configure();
   },
@@ -277,16 +275,8 @@ var PlayScene = {
     //IS called one per frame.
     update: function () {
 
-        /*if (this.game.input.keyboard.isDown(Phaser.Keyboard.P)){ 
-            console.log('Pause');
-            //game.paused = true;
-            //this.onPause();
-        }*/
-
         this.keyP = this.game.input.keyboard.addKey(Phaser.Keyboard.P);
-        //this.keyP.onDown.add(this.onPause, this);
         
-        //console.log(this.paused);
         if (!this.paused){
 
           if (this.keyP.isDown){
@@ -296,15 +286,14 @@ var PlayScene = {
           }
         }
 
-        //this.game.input.onDown.add(this.onPause, self);
-
         var moveDirection = new Phaser.Point(0, 0);
-        var collisionWithTilemap = this.game.physics.arcade.collide(this._rush, this.groundLayer);
-        var enimiesCollision = this.game.physics.arcade.collide(this._glow, this.groundLayer);
-        var triggerSombras = this.game.physics.arcade.collide(this._rush, this._sombra);
-        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
-        //var collisionShadow = this.game.physics.arcade.collide(this._rush, this.shadow);
+
+        var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
+        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._darkness);
+        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._enemies);
+        
         var movement = this.GetMovement();
+
         //transitions
         switch(this._playerState)
         {
@@ -312,24 +301,24 @@ var PlayScene = {
             case PlayerState.RUN:
                 if(this.isJumping(collisionWithTilemap)){
                     this._playerState = PlayerState.JUMP;
-                    this._initialJumpHeight = this._rush.y;
-                    this._rush.animations.play('jump');
+                    this._initialJumpHeight = this._shadow.y;
+                    this._shadow.animations.play('jump');
                 }
                 else{
                     if(movement !== Direction.NONE){
                         this._playerState = PlayerState.RUN;
-                        this._rush.animations.play('run');
+                        this._shadow.animations.play('run');
                     }
                     else{
                         this._playerState = PlayerState.STOP;
-                        this._rush.animations.play('stop');
+                        this._shadow.animations.play('stop');
                     }
                 }    
                 break;
                 
             case PlayerState.JUMP:
                 
-                var currentJumpHeight = this._rush.y - this._initialJumpHeight;
+                var currentJumpHeight = this._shadow.y - this._initialJumpHeight;
                 this.aux = currentJumpHeight;
                 this._playerState = (currentJumpHeight*currentJumpHeight < this._jumpHight*this._jumpHight)
                     ? PlayerState.JUMP : PlayerState.FALLING;
@@ -339,11 +328,11 @@ var PlayScene = {
                 if(this.isStanding()){
                     if(movement !== Direction.NONE){
                         this._playerState = PlayerState.RUN;
-                        this._rush.animations.play('run');
+                        this._shadow.animations.play('run');
                     }
                     else{
                         this._playerState = PlayerState.STOP;
-                        this._rush.animations.play('stop');
+                        this._shadow.animations.play('stop');
                     }
                 }
                 break;     
@@ -359,19 +348,16 @@ var PlayScene = {
             case PlayerState.FALLING:
                 if(movement === Direction.RIGHT){
                     moveDirection.x = this._speed;
-                    if(this._rush.scale.x < 0)
-                        this._rush.scale.x *= -1;
+                    if(this._shadow.scale.x < 0)
+                        this._shadow.scale.x *= -1;
                 }
                 else if(movement === Direction.LEFT){
                     moveDirection.x = -this._speed;
-                    if(this._rush.scale.x > 0)
-                        this._rush.scale.x *= -1;
+                    if(this._shadow.scale.x > 0)
+                        this._shadow.scale.x *= -1;
                 }
-                else{
-                    moveDirection.x = 0;
-                    /*if(this._rush.scale.x > 0)
-                        this._rush.scale.x *= -1;*/ 
-                }
+                else moveDirection.x = 0;
+      
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
                 if(this._playerState === PlayerState.FALLING)
@@ -385,13 +371,14 @@ var PlayScene = {
         
         //--COLISION CON EL ENEMIGO--
         //Solo si el personaje es visible, revisa si colisiona con el enemigo
-        if (this._rush.visible) { 
+        if (this._shadow.visible) { 
           
-          if (this.game.physics.arcade.collide(this._rush, this._glow)){
+          if (this.game.physics.arcade.collide(this._shadow, this._enemies)){
 
             this.onPlayerFell();
           }
         }
+
         //--COLISION DEL ENEMIGO CON LOS LIMITES--
         
         if (!collisionWithLimits){ 
@@ -410,15 +397,14 @@ var PlayScene = {
 
         
         //--COLISION CON LA SOMBRA--
-        //console.log(this.checkOverlap(this._rush, this._sombra));
     
-        if (this.checkOverlap(this._rush, this._sombra) &&collisionWithTilemap && this.keyE.isDown  && this._rush.body.velocity.y === 0){
-          this._rush.visible = false;
-          this._rush.body.velocity.x = this._rush.body.velocity.y = 0;
+        if (this.checkOverlap(this._shadow, this._dark) &&collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
+          this._shadow.visible = false;
+          this._shadow.body.velocity.x = this._shadow.body.velocity.y = 0;
         }
 
-        else if (!this._rush.visible)
-         this._rush.visible = true; 
+        else if (!this._shadow.visible)
+         this._shadow.visible = true; 
     },
 
     checkOverlap: function (spriteA, spriteB){
@@ -430,7 +416,6 @@ var PlayScene = {
 
     onPause: function(event){
         
-        //this.keyP = false;
         if (this.paused){
             this.button = this.game.add.button(400, 300, 
                                           'button', 
@@ -454,15 +439,13 @@ var PlayScene = {
 
             this.game.physics.arcade.isPaused = true;
 
-            //if(this.keyP) this.actionOnClickContinue();
         }
     },
+
     actionOnClickContinue: function(){
-        console.log ("He entrado en continue");
         this.button.destroy();
         this.buttonMenu.destroy();
         this.pauseText.destroy();
-        //game.paused = false;
         this.game.physics.arcade.isPaused = false;
         this.paused = false;
     }, 
@@ -478,18 +461,17 @@ var PlayScene = {
     },
     
     onPlayerFell: function(){
-        //TODO 6 Carga de 'gameOver';
         this.game.state.start('gameOver');
     },
     
     checkPlayerFell: function(){
-        if(this.game.physics.arcade.collide(this._rush, this.death))
+        if(this.game.physics.arcade.collide(this._shadow, this.death))
             this.onPlayerFell();
         
     },
         
     isStanding: function(){
-        return this._rush.body.blocked.down || this._rush.body.touching.down
+        return this._shadow.body.blocked.down || this._shadow.body.touching.down
     },
         
     isJumping: function(collisionWithTilemap){
@@ -499,37 +481,41 @@ var PlayScene = {
         
     GetMovement: function(){
         var movement = Direction.NONE
+        
         //Move Right
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
             movement = Direction.RIGHT;
         }
+
         //Move Left
         if(this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
             movement = Direction.LEFT;
         }
         return movement;
     },
+
     //configure the scene
     configure: function(){
         //Start the Arcade Physics systems
         this.game.world.setBounds(0, 0, 2400, 160);
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
-        this.game.physics.arcade.enable(this._rush);
+        this.game.physics.arcade.enable(this._shadow);
         this.game.physics.arcade.enable(this._glow);
 
-        this._rush.body.bounce.y = 0.2;
-        this._rush.body.gravity.y = 20000;
-        this._rush.body.gravity.x = 0;
-        this._rush.body.velocity.x = 0;
-        this.game.camera.follow(this._rush);
+        this._shadow.body.bounce.y = 0.2;
+        this._shadow.body.gravity.y = 20000;
+        this._shadow.body.gravity.x = 0;
+        this._shadow.body.velocity.x = 0;
+        this.game.camera.follow(this._shadow);
     },
+
     //move the player
     movement: function(point, xMin, xMax){
-        this._rush.body.velocity = point;// * this.game.time.elapseTime;
+        this._shadow.body.velocity = point;
         
-        if((this._rush.x < xMin && point.x < 0)|| (this._rush.x > xMax && point.x > 0))
-            this._rush.body.velocity.x = 0;
+        if((this._shadow.x < xMin && point.x < 0)|| (this._shadow.x > xMax && point.x > 0))
+            this._shadow.body.velocity.x = 0;
 
     }
     
@@ -539,5 +525,4 @@ var PlayScene = {
 };
 
 module.exports = PlayScene;
-
 },{}]},{},[2]);
