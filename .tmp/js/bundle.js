@@ -147,7 +147,7 @@ window.onload = function () {
 };
 
 window.init = function () {
-  var game = new Phaser.Game(800, 900, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
 
   game.state.add('boot', BootScene);
   game.state.add('menu', MenuScene);
@@ -197,9 +197,6 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 //Scena de juego.
 var PlayScene = {
     _shadow: {}, //player
-<<<<<<< HEAD
-    _glow: {}, //enemigo
-=======
 
    //enemigos
     _glow: {}, _glow2: {}, _glow3: {}, _glow4: {}, _glow5: {},
@@ -209,54 +206,30 @@ var PlayScene = {
 
     _light: {},
 
->>>>>>> NuevoMapa
     _speed: 300, //velocidad del player
     _jumpSpeed: 600, //velocidad de salto
     _jumpHight: 100, //altura máxima del salto.
     _playerState: PlayerState.STOP, //estado del player
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
-<<<<<<< HEAD
-    _enemies: {},
-    _darkness: {},
-    _avance: -1,
-    _dark: {},
-    paused: false,
-
-    aux: 0,
-
-=======
     _avance: -1, _avance2: -1, _avance3: -1, _avance4: -1,
 
     aux: 0,
 
     paused: false,
 
->>>>>>> NuevoMapa
     button: {},
     buttonMenu: {},
     textContinue: {},
     pauseText: {},
     textoReturn: {},
-<<<<<<< HEAD
-=======
 
->>>>>>> NuevoMapa
     keyP: {},
     keyE: {},
 
     //Método constructor...
   create: function () {
-<<<<<<< HEAD
-      
-       this._enemies = this.game.add.group();
-       this._darkness = this.game.add.group();
 
-       this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
-
-
-      this.map = this.game.add.tilemap('tilemap');
-      this.map.addTilesetImage('patrones','tiles');  
-=======
+      this.game.world.setBounds(0, 0, 800, 900);
 
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
@@ -265,17 +238,11 @@ var PlayScene = {
 
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('mylevel1_tiles','tiles');  
->>>>>>> NuevoMapa
 
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');//capa de fondo
 
 
-<<<<<<< HEAD
-      this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
-      this.mapDark = this.map.createLayer('Sombras'); //capa de sombras en las que esconderse
-      this.limites = this.map.createLayer('Limite'); //capa de los límites para los glows
-=======
        //----SOMBRAS EN LAS QUE OCULTARTE----
       this._dark = new Phaser.Sprite(this.game, 435, 770, 'sombras');
       this.game.world.addChild(this._dark);
@@ -297,50 +264,23 @@ var PlayScene = {
       this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
       this.limites = this.map.createLayer('Limites'); //capa de los límites para los glows
       this.limitesJugador = this.map.createLayer('LimitePersonaje'); //capa de los límites para los glows
->>>>>>> NuevoMapa
       this.death = this.map.createLayer('Muerte');//capa de muerte
 
       //Colisiones con el plano de muerte y con el plano de muerte y con suelo.
       this.map.setCollisionBetween(1, 5000, true, 'Limites');
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
-<<<<<<< HEAD
-=======
       this.map.setCollisionBetween(1, 5000, true, 'LimitePersonaje');
->>>>>>> NuevoMapa
     
       this.death.visible = false;
       this.limites.visible = false;
       this.limitesJugador.visible = false;
 
-<<<<<<< HEAD
-      //Cambia la escala a x2.75.
-      this.groundLayer.setScale(2.75,2.75);
-      this.backgroundLayer.setScale(2.75,2.75);
-      this.backgroundLayer2.setScale(2.75,2.75);
-      this.death.setScale(2.75,2.75);
-      this.mapDark.setScale(2.75,2.75);
-      this.limites.setScale(2.75,2.75);
-
-       //Sombras en las que ocultarte
-      this._dark = new Phaser.Sprite(this.game, 735, 170, 'sombras');
-      this.game.world.addChild(this._dark);
-      this._dark.scale.setTo(0.13,0.27);
-      this._darkness.add(this._dark);
-
-      this._shadow = new Phaser.Sprite(this.game, 10, 10, 'rush_idle01');
-      this.game.world.addChild(this._shadow);
-
-      this._glow = new Phaser.Sprite(this.game, 820, 240, 'glow');
-      this.game.world.addChild(this._glow);
-      this._enemies.add(this._glow);
-
-      this.detalles = this.map.createLayer('Detalles');
-      this.detalles.setScale(2.75,2.75);
-=======
       //----PERSONAJE----
       this._shadow = new Phaser.Sprite(this.game, 50, 800, 'rush_idle01');
       this.game.world.addChild(this._shadow);
+
+      this.game.camera.follow(this._shadow);
 
       //----ENEMIGOS----
       this._glow = new Phaser.Sprite(this.game, 500, 780, 'glow');
@@ -363,7 +303,6 @@ var PlayScene = {
       //Los detalles se general al final para que los monolitos que dan sombra 
       //se vean delante del jugador y creen un falso 3D
       this.detalles = this.map.createLayer('Detalles');
->>>>>>> NuevoMapa
       
       //Cambia la escala a x2
       this.groundLayer.setScale(2,2);
@@ -400,10 +339,6 @@ var PlayScene = {
         var moveDirection = new Phaser.Point(0, 0);
 
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
-<<<<<<< HEAD
-        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._darkness);
-        var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._enemies);
-=======
         var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
 
         /*//Trigger de sombras
@@ -417,7 +352,6 @@ var PlayScene = {
         var collisionWithLimits2 = this.game.physics.arcade.collide(this.limites, this._glow2);
         var collisionWithLimits3 = this.game.physics.arcade.collide(this.limites, this._glow3);
         var collisionWithLimits4 = this.game.physics.arcade.collide(this.limites, this._glow4);
->>>>>>> NuevoMapa
         
         var movement = this.GetMovement();
 
@@ -501,23 +435,10 @@ var PlayScene = {
         //Solo si el personaje es visible, revisa si colisiona con el enemigo
         if (this._shadow.visible) { 
           
-<<<<<<< HEAD
-          if (this.game.physics.arcade.collide(this._shadow, this._enemies)){
-
-            this.onPlayerFell();
-          }
-        }
-
-        //--COLISION DEL ENEMIGO CON LOS LIMITES--
-        
-        if (!collisionWithLimits){ 
-          this._glow.body.velocity.x = this._avance*80;
-=======
           if (this.game.physics.arcade.collide(this._shadow, this._glow)) this.onPlayerFell();
           else if (this.game.physics.arcade.collide(this._shadow, this._glow2)) this.onPlayerFell();
           else if (this.game.physics.arcade.collide(this._shadow, this._glow3)) this.onPlayerFell();
           else if (this.game.physics.arcade.collide(this._shadow, this._glow4)) this.onPlayerFell();
->>>>>>> NuevoMapa
           
         }
 
@@ -553,14 +474,10 @@ var PlayScene = {
         
         //--COLISION CON LA SOMBRA--
     
-<<<<<<< HEAD
-        if (this.checkOverlap(this._shadow, this._dark) &&collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
-=======
         if ((this.checkOverlap(this._shadow, this._dark) || this.checkOverlap(this._shadow, this._dark2) 
               || this.checkOverlap(this._shadow, this._dark3) || this.checkOverlap(this._shadow, this._dark4))
                   && collisionWithTilemap && this.keyE.isDown  && this._shadow.body.velocity.y === 0){
 
->>>>>>> NuevoMapa
           this._shadow.visible = false;
           this._shadow.body.velocity.x = this._shadow.body.velocity.y = 0;
         }
@@ -671,14 +588,10 @@ var PlayScene = {
     //configure the scene
     configure: function(){
         //Start the Arcade Physics systems
-        this.game.world.setBounds(0, 0, 2400, 160);
+        
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._shadow);
-<<<<<<< HEAD
-        this.game.physics.arcade.enable(this._glow);
-
-=======
 
         //Fisicas de los enemigos
         this.game.physics.arcade.enable(this._glow);
@@ -689,12 +602,11 @@ var PlayScene = {
         //Físicas de light
         this.game.physics.arcade.enable(this._light);
 
->>>>>>> NuevoMapa
         this._shadow.body.bounce.y = 0.2;
         this._shadow.body.gravity.y = 20000;
         this._shadow.body.gravity.x = 0;
         this._shadow.body.velocity.x = 0;
-        this.game.camera.follow(this._shadow);
+        //this.game.camera.follow(this._shadow);
     },
 
     //move the player
@@ -709,8 +621,4 @@ var PlayScene = {
 };
 
 module.exports = PlayScene;
-<<<<<<< HEAD
-},{}]},{},[2]);
-=======
 },{}]},{},[3]);
->>>>>>> NuevoMapa

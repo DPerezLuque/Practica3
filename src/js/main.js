@@ -82,7 +82,7 @@ window.onload = function () {
 };
 
 window.init = function () {
-  var game = new Phaser.Game(800, 900, Phaser.AUTO, 'game');
+  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
 
   game.state.add('boot', BootScene);
   game.state.add('menu', MenuScene);

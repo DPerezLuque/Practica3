@@ -41,6 +41,8 @@ var PlayScene = {
     //Método constructor...
   create: function () {
 
+      this.game.world.setBounds(0, 0, 800, 900);
+
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
        this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT, Phaser.Keyboard.SPACEBAR ]);
@@ -89,6 +91,8 @@ var PlayScene = {
       //----PERSONAJE----
       this._shadow = new Phaser.Sprite(this.game, 50, 800, 'rush_idle01');
       this.game.world.addChild(this._shadow);
+
+      this.game.camera.follow(this._shadow);
 
       //----ENEMIGOS----
       this._glow = new Phaser.Sprite(this.game, 500, 780, 'glow');
@@ -396,7 +400,7 @@ var PlayScene = {
     //configure the scene
     configure: function(){
         //Start the Arcade Physics systems
-        this.game.world.setBounds(0, 0, 2400, 160);
+        
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.stage.backgroundColor = '#a9f0ff';
         this.game.physics.arcade.enable(this._shadow);
@@ -414,7 +418,7 @@ var PlayScene = {
         this._shadow.body.gravity.y = 20000;
         this._shadow.body.gravity.x = 0;
         this._shadow.body.velocity.x = 0;
-        this.game.camera.follow(this._shadow);
+        //this.game.camera.follow(this._shadow);
     },
 
     //move the player
