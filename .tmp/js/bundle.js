@@ -81,7 +81,7 @@ var BootScene = {
 
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
-    this.game.load.image('logo', 'images/phaser.png');
+    this.game.load.image('logo', 'images/LostShadow.png');
   },
 
   create: function () {
@@ -168,7 +168,7 @@ var MenuScene = {
                                         'logo');
         logo.anchor.setTo(0.5, 0.5);
         var buttonStart = this.game.add.button(this.game.world.centerX, 
-                                               this.game.world.centerY, 
+                                               500, 
                                                'button', 
                                                this.actionOnClick, 
                                                this, 2, 1, 0);
@@ -341,12 +341,6 @@ var PlayScene = {
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
         var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
 
-        /*//Trigger de sombras
-        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._dark);
-        var triggerSombras2 = this.game.physics.arcade.collide(this._shadow, this._dark2);
-        var triggerSombras3 = this.game.physics.arcade.collide(this._shadow, this._dark3);
-        var triggerSombras4 = this.game.physics.arcade.collide(this._shadow, this._dark4);*/
-        
         //Colisiones de los enemigos
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
         var collisionWithLimits2 = this.game.physics.arcade.collide(this.limites, this._glow2);
@@ -421,6 +415,7 @@ var PlayScene = {
       
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
+            
                 if(this._playerState === PlayerState.FALLING)
                     moveDirection.y = 0;
                 break;    

@@ -153,12 +153,6 @@ var PlayScene = {
         var collisionWithTilemap = this.game.physics.arcade.collide(this._shadow, this.groundLayer);
         var playerLimits = this.game.physics.arcade.collide(this._shadow, this.limitesJugador);
 
-        /*//Trigger de sombras
-        var triggerSombras = this.game.physics.arcade.collide(this._shadow, this._dark);
-        var triggerSombras2 = this.game.physics.arcade.collide(this._shadow, this._dark2);
-        var triggerSombras3 = this.game.physics.arcade.collide(this._shadow, this._dark3);
-        var triggerSombras4 = this.game.physics.arcade.collide(this._shadow, this._dark4);*/
-        
         //Colisiones de los enemigos
         var collisionWithLimits = this.game.physics.arcade.collide(this.limites, this._glow);
         var collisionWithLimits2 = this.game.physics.arcade.collide(this.limites, this._glow2);
@@ -233,6 +227,7 @@ var PlayScene = {
       
                 if(this._playerState === PlayerState.JUMP)
                     moveDirection.y = -this._jumpSpeed;
+            
                 if(this._playerState === PlayerState.FALLING)
                     moveDirection.y = 0;
                 break;    

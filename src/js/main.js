@@ -16,7 +16,7 @@ var BootScene = {
 
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
-    this.game.load.image('logo', 'images/phaser.png');
+    this.game.load.image('logo', 'images/LostShadow.png');
   },
 
   create: function () {
