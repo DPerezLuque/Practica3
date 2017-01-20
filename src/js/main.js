@@ -11,12 +11,13 @@ var BootScene = {
   preload: function () {
     // load here assets required for the loading screen
     var style = { font: "65px Arial", fill: "#ffffff", align: "center" }
-    var text = this.game.add.text(400, 100, "Lost Shadow", style);
-    text.anchor.set(0.6);
+   
 
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('logo', 'images/LostShadow.png');
+    this.game.load.audio('start', ['sounds/MuseGloriousMp3.mp3', 'MuseGloriousOgg.ogg']);
+
   },
 
   create: function () {
@@ -74,7 +75,7 @@ var wfconfig = {
     },
  
     google: {
-        families: ['Sniglet']
+        families: ['Sniglet', '24px Arial']
     }
  
 };

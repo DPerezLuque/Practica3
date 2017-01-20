@@ -29,6 +29,10 @@ var PlayScene = {
 
     paused: false,
 
+    style : {},
+
+    textoSombra: {},
+    textoGuiaSombra: {},
     button: {},
     buttonMenu: {},
     textContinue: {},
@@ -38,14 +42,16 @@ var PlayScene = {
     keyP: {},
     keyE: {},
 
+    music: {},
+
     //Método constructor...
   create: function () {
 
       this.game.world.setBounds(0, 0, 800, 900);
 
-      var music = this.game.add.audio('cave');
+        this.music = this.game.add.audio('cave');
 
-      music.play();
+       this.music.play();
 
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
@@ -58,7 +64,18 @@ var PlayScene = {
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');//capa de fondo
 
+      this.style = {font: "24px Arial", fill: "#ffffff"}; 
+      //Texto inicial
+      this.textoSombra = this.game.add.text(250, 700, "¡Esto está plagado de glows!\n No puedo permitir que me toquen o seré destruido.\n Y no podré salvarte.  ", this.style);
+      this.textoSombra.anchor.set(0.6);
+      this.textoSombra.scale.setTo(0.6, 0.6);
 
+      this.textoGuiaSombra = this.game.add.text(230, 750, "Pulsa E en las sombras para ocultarte.", this.style);
+      this.textoGuiaSombra.anchor.set(0.6);
+      this.textoGuiaSombra.scale.setTo(0.7, 0.7);
+      
+
+ //
        //----SOMBRAS EN LAS QUE OCULTARTE----
       this._dark = new Phaser.Sprite(this.game, 435, 770, 'sombras');
       this.game.world.addChild(this._dark);
@@ -377,6 +394,9 @@ var PlayScene = {
     },
     
     onPlayerFell: function(){
+
+        this.music.destroy();
+
         this.game.state.start('gameOver');
     },
 

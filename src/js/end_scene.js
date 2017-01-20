@@ -13,7 +13,7 @@ var EndScene = {
         
         var textoReturn = this.game.add.text(0, 0, "Menu");
         textoReturn.anchor.set(0.5);
-        buttonMenu.addChild(textoReturn);
+        buttonMenu.addChild(textoReturn); //
     },
 
     actionOnClick: function(){
