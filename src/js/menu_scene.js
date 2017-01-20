@@ -18,6 +18,9 @@ var MenuScene = {
     },
     
     actionOnClick: function(){
+        var sound = this.game.add.audio('click');
+        sound.play();
+
         this.game.state.start('preloader');
     } 
 };

@@ -43,6 +43,10 @@ var PlayScene = {
 
       this.game.world.setBounds(0, 0, 800, 900);
 
+      var music = this.game.add.audio('cave');
+
+      music.play();
+
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
        this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT, Phaser.Keyboard.SPACEBAR ]);
@@ -89,7 +93,7 @@ var PlayScene = {
       this.limitesJugador.visible = false;
 
       //----PERSONAJE----
-      this._shadow = new Phaser.Sprite(this.game, 50, 800, 'rush_idle01');
+      this._shadow = new Phaser.Sprite(this.game, 50, 800, 'shadow');
       this.game.world.addChild(this._shadow);
 
       this.game.camera.follow(this._shadow);
@@ -97,15 +101,31 @@ var PlayScene = {
       //----ENEMIGOS----
       this._glow = new Phaser.Sprite(this.game, 500, 780, 'glow');
       this.game.world.addChild(this._glow);
+      this._glow.scale.setTo(1.75,1.75);
+       //Animacion
+      this._glow.animations.add('glow',[0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 11,true);
+      this._glow.animations.play('glow');
 
       this._glow2 = new Phaser.Sprite(this.game, 200, 470, 'glow');
       this.game.world.addChild(this._glow2);
+      this._glow2.scale.setTo(1.75,1.75);
+       //Animacion
+      this._glow2.animations.add('glow',[0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 11,true);
+      this._glow2.animations.play('glow');
 
       this._glow3 = new Phaser.Sprite(this.game, 500, 310, 'glow');
       this.game.world.addChild(this._glow3);
+      this._glow3.scale.setTo(1.75,1.75);
+       //Animacion
+      this._glow3.animations.add('glow',[0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 11,true);
+      this._glow3.animations.play('glow');
 
       this._glow4 = new Phaser.Sprite(this.game, 150, 45, 'glow');
       this.game.world.addChild(this._glow4);
+      this._glow4.scale.setTo(1.75,1.75);
+       //Animacion
+      this._glow4.animations.add('glow',[0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 11,true);
+      this._glow4.animations.play('glow');
 
       //----LIGHT----
       this._light = new Phaser.Sprite(this.game, 5, 0, 'light');
@@ -125,10 +145,14 @@ var PlayScene = {
       this.detalles.setScale(2,2);
 
       //nombre de la animación, frames, framerate, isloop 
-      this._shadow.animations.add('run',[0,1,2,3], 10,True;
-      this._shadow.animations.add('stop'
-                   //this._shadow.animations.add('run',[0,1,
-                     Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
+      this._shadow.animations.add('run',[0,1,2,3], 10,true);
+      this._shadow.animations.add('stop',[4], 0, false);
+      this._shadow.animations.add('jump',[4,5], 10, false);
+
+      //Animacion
+      this._glow.animations.add('glow',[0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], 11,true);
+      this._glow.animations.play('glow');
+
       this.configure();
   },
     
@@ -327,6 +351,9 @@ var PlayScene = {
     },
 
     actionOnClickContinue: function(){
+        var sound = this.game.add.audio('click');
+        sound.play();
+
         this.button.destroy();
         this.buttonMenu.destroy();
         this.pauseText.destroy();
@@ -335,6 +362,9 @@ var PlayScene = {
     }, 
 
     actionOnClickMenu: function(){
+      var sound = this.game.add.audio('click');
+        sound.play();
+
         this.paused = false;
         this.game.state.start('menu');
         this.game.world.setBounds(0,0,800,600);
@@ -411,7 +441,6 @@ var PlayScene = {
         this._shadow.body.gravity.y = 20000;
         this._shadow.body.gravity.x = 0;
         this._shadow.body.velocity.x = 0;
-        //this.game.camera.follow(this._shadow);
     },
 
     //move the player

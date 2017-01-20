@@ -38,10 +38,14 @@ var PreloaderScene = {
   
       this.game.load.tilemap('tilemap', 'images/map.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.image('tiles', 'images/mylevel1_tiles.png');
-      this.game.load.atlasJSONHash('rush_idle01','images/rush_spritesheet.png', 'images/rush_spritesheet.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
-      this.game.load.image('glow', 'images/glowy2.png');
+      this.game.load.spritesheet('shadow','images/Shadow.png', 48, 50);
+      this.game.load.spritesheet('glow', 'images/glow.png', 32, 32);
       this.game.load.image('sombras', 'images/sombras.png');
       this.game.load.image('light', 'images/light.png');
+
+      //Audio
+      this.game.load.audio('cave', ['sounds/Muse - Cave (8-bit).mp3', 'Muse_-_Cave_8-bit_.ogg']);
+      this.game.load.audio('click', ['Click.mp3', 'Click.ogg']);
 
       this.game.load.onLoadComplete.add(this.loadComplete, this);
   },

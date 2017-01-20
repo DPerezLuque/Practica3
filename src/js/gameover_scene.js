@@ -24,11 +24,17 @@ var GameOver = {
     },
 
     actionOnClick1: function(){
+      var sound = this.game.add.audio('click');
+        sound.play();
+
         this.game.state.start('preloader');
 
     }, 
 
     actionOnClick2: function(){
+      var sound = this.game.add.audio('click');
+        sound.play();
+
         this.game.state.start('menu');
         this.game.world.setBounds(0,0,800,600);
     } 
