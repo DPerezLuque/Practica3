@@ -124,12 +124,10 @@ var PlayScene = {
       this.limitesJugador.setScale(2,2);
       this.detalles.setScale(2,2);
 
-      //nombre de la animación, frames, framerate, isloop
-      this._shadow.animations.add('run',
-                    Phaser.Animation.generateFrameNames('rush_run',1,5,'',2),10,true);
-      this._shadow.animations.add('stop',
-                    Phaser.Animation.generateFrameNames('rush_idle',1,1,'',2),0,false);
-      this._shadow.animations.add('jump',
+      //nombre de la animación, frames, framerate, isloop 
+      this._shadow.animations.add('run',[0,1,2,3], 10,True;
+      this._shadow.animations.add('stop'
+                   //this._shadow.animations.add('run',[0,1,
                      Phaser.Animation.generateFrameNames('rush_jump',2,2,'',2),0,false);
       this.configure();
   },
