@@ -1,28 +1,31 @@
 var MenuScene = {
 
 
-    logo: {},
-    button: {},
-    buttonStart: {},
+    logo: {}, //Logo del juego
+    buttonStart: {}, //Botón de inicio del juego
 
-    menuMusic: {},
-    fondoMenu: {},
-    click: {},
+    menuMusic: {}, //Música del menú
+    fondoMenu: {}, //fondo del menú
+    click: {}, //Sonido del botón
 
     create: function () {
 
-          click = this.game.add.audio('click');
+          //Creamos los sonidos y la música.
+           click = this.game.add.audio('click');
            menuMusic = this.game.add.audio('start');
            menuMusic.play();
            menuMusic.loop= true; 
 
+           //Creamos el fondo del juego
         fondoMenu = this.game.add.sprite (0,0,'fondoMenu');
         
+        //Logo del juego
         logo = this.game.add.sprite(this.game.world.centerX, 
                                         this.game.world.centerY, 
                                         'logo');
         logo.anchor.setTo(0.5, 0.5);
         
+        //Creamos el botón de start
         buttonStart = this.game.add.button(this.game.world.centerX, 
                                                500, 
                                                'button', 
@@ -39,7 +42,7 @@ var MenuScene = {
     
     actionOnClick: function(){
         
-        menuMusic.destroy(); //
+        menuMusic.destroy(); //paramos la música
        
         click.volume = 1.5;
         click.play();

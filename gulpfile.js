@@ -21,7 +21,7 @@ var ghpages = require('gulp-gh-pages');
 //
 
 var bundler = browserify([
-  './src/js/main.js'
+  './src/js/main.js', './src/js/play_scene.js', './src/js/menu_scene.js','./src/js/end_scene.js','./src/js/gameover_scene.js'
 ]);
 
 var bundle = function ()  {
@@ -55,7 +55,7 @@ gulp.task('dist', ['build'], function () {
   var rawFiles = gulp.src([
     'index.html', 'raw.html',
     'styles.css',
-    'images/**/*', 'fonts/**/*', 'audio/**/*'
+    'images/**/*', 'sounds/**/*',
   ], { cwd: './src', base: './src' })
     .pipe(gulp.dest('./dist/'));
 

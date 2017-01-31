@@ -10,7 +10,7 @@ var Direction = {'LEFT':0, 'RIGHT':1, 'NONE':3}
 var PlayScene = {
  
     glows: {}, //grupo de glows
-    darks: {},
+    darks: {}, //Grupo de darks
     _shadow: {}, //player
 
 
@@ -23,60 +23,76 @@ var PlayScene = {
     _direction: Direction.NONE,  //dirección inicial del player. NONE es ninguna dirección.
     _avance: -1,// _avance2: -1, _avance3: -1, _avance4: -1,
 
-    aux: 0,
+    aux: 0, // Variable auxiliar para el salto
 
-    paused: false,
+    paused: false,  //Variable que determina si el juego está en estado de pausa o no. 
+                    //Pero no usa la pausa de Phaser sino que es un estado propio, meramente indicativo
 
-    style : {},
+    style : {}, //Estilo de las letras
 
+    // --TEXTOS --
+    ///Textos que aparecen a lo largo del juego
     textoSombra: {},
     textoGuiaSombra: {},
-    button: {},
-    buttonMenu: {},
     textContinue: {},
     pauseText: {},
     textoReturn: {},
+    //-----------------
 
+    //-- BOTONES --
+    button: {},
+    buttonMenu: {},
+    //------------
+
+    //--TECLAS --
     keyP: {},
     keyE: {},
+    //----------
 
+    //--MÚSICA-- 
     music: {},
+    //----------
 
     //Método constructor...
   create: function () {
 
-      this.game.world.setBounds(0, 0, 800, 900);
+      this.game.world.setBounds(0, 0, 800, 900); //Escala del mundo
 
-        this.music = this.game.add.audio('cave');
+      //Música del nivel
+        this.music = this.game.add.audio('cave'); 
 
        this.music.play();
        this.music.loop = true;
+       //-----------
 
+       //Asignamos la tecla E a "Esconderse"
        this.keyE = this.game.input.keyboard.addKey(Phaser.Keyboard.E);
 
+       //Evita que las teclas se propagen al navegador (Se mueva la página)
        this.game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT, Phaser.Keyboard.SPACEBAR ]);
 
-
+       //Mapa
       this.map = this.game.add.tilemap('tilemap');
       this.map.addTilesetImage('mylevel1_tiles','tiles');  
 
       //Creacion de las layers
       this.backgroundLayer = this.map.createLayer('Fondo');//capa de fondo
 
+      //Estilo del texto
       this.style = {font: "24px Arial", fill: "#ffffff"}; 
       //Texto inicial
       this.textoSombra = this.game.add.text(250, 700, "¡Esto está plagado de glows!\n No puedo permitir que me toquen o seré destruido.\n Y no podré salvarte.  ", this.style);
       this.textoSombra.anchor.set(0.6);
       this.textoSombra.scale.setTo(0.6, 0.6);
-
+      //Texto tutorial
       this.textoGuiaSombra = this.game.add.text(230, 750, "Pulsa E en las sombras para ocultarte.", this.style);
       this.textoGuiaSombra.anchor.set(0.6);
       this.textoGuiaSombra.scale.setTo(0.7, 0.7);
       
 
- //
-       //----SOMBRAS EN LAS QUE OCULTARTE----
-       //Inicializacion de darks como grupo.
+    
+      //----SOMBRAS EN LAS QUE OCULTARTE----
+      //Inicializacion de darks como grupo.
       this.darks = this.game.add.group();
       this.darks.enableBody = true;
 
@@ -84,7 +100,7 @@ var PlayScene = {
       this.CreaDarks(90, 450, this.game);
       this.CreaDarks(380, 290, this.game);
       this.CreaDarks(320, 25, this.game);
-
+      //-----------------------------------
 
       //Capas del mapa
       this.groundLayer = this.map.createLayer('Plataformas'); //capa de groundlayer
@@ -97,7 +113,8 @@ var PlayScene = {
       this.map.setCollisionBetween(1, 5000, true, 'Muerte');
       this.map.setCollisionBetween(1, 5000, true, 'Plataformas');
       this.map.setCollisionBetween(1, 5000, true, 'LimitePersonaje');
-    
+
+      //Capas invisibles
       this.death.visible = false;
       this.limites.visible = false;
       this.limitesJugador.visible = false;
@@ -143,15 +160,17 @@ var PlayScene = {
       this.limitesJugador.setScale(2,2);
       this.detalles.setScale(2,2);
 
+      //-- Animaciones --
+
       //nombre de la animación, frames, framerate, isloop 
       this._shadow.animations.add('run',[0,1,2,3], 10,true);
-      //this._shadow.animations.add('stop',[4], 0, false);
+      
       //Mejor lo de debajo
       this._shadow.frame = 4;
       this._shadow.animations.add('jump',[4,5], 10, false);
-
+      //-----------------
  
-
+      //Llamamos a configure para que cree las escenas,.
       this.configure();
   },
     
@@ -180,7 +199,7 @@ var PlayScene = {
         
         var movement = this.GetMovement();
 
-        //transitions
+        //transitions 
         switch(this._playerState)
         {
             case PlayerState.STOP:
@@ -303,6 +322,7 @@ var PlayScene = {
           }
         }
     },
+
     //Método plantilla para crear darks
     CreaDarks: function(x, y, game){
       var dark = new Phaser.Sprite(this.game, x, y, 'sombras');
@@ -310,6 +330,7 @@ var PlayScene = {
       dark.scale.setTo(0.1,0.2);
       this.darks.add(dark);
     },
+
     //Método plantilla para crear glows
     CreaGlows: function(x, y, game){
       var glow = this.game.add.sprite(x, y, 'glow');
@@ -331,29 +352,37 @@ var PlayScene = {
       return Phaser.Rectangle.intersects(boundsA, boundsB); 
     },
 
+    //Método que gestiona la pausa en el juego.
+    //Creamos dos botones, uno de menu y otro de continuar.
     onPause: function(event){
         
         if (this.paused){
           this.music.stop();
-         
+            
+            //Boton de continuar. Cuando es pulsado, reanuda el juego en el mismo estado en el que estaba, así como la música
             this.button = this.game.add.button(400, 300, 
                                           'button', 
                                           this.actionOnClickContinue, 
                                           this, 2, 1, 0);
             this.button.fixedToCamera = true;
-            this.pauseText = this.game.add.text(400, 100, "     Pause");
+            this.pauseText = this.game.add.text(400, 200, "Pause", this.style);
+            this.pauseText.anchor.set(0.5);
+            this.pauseText.scale.setTo(1.5, 1.5);
             this.textContinue = this.game.add.text(0, 0, "Continue");
-            this.textContinue.anchor.set(-0.25);
+            this.button.anchor.set (0.5);
+            this.textContinue.anchor.set(0.5);
             this.pauseText.fixedToCamera = true;
             this.button.addChild(this.textContinue);
 
+            //Botón de Menú. Cuando es pulsado, envía al jugador a la pantalla inicial del juego.
             this.buttonMenu = this.game.add.button(400, 450, 
                                           'button', 
                                           this.actionOnClickMenu, 
                                           this, 2, 1, 0);
             this.buttonMenu.fixedToCamera = true;
             this.textoReturn = this.game.add.text(0, 0, "Menu");
-            this.textoReturn.anchor.set(-0.65);
+            this.buttonMenu.anchor.set (0.5);
+            this.textoReturn.anchor.set(0.5);
             this.buttonMenu.addChild(this.textoReturn);
 
             this.game.physics.arcade.isPaused = true;
@@ -387,6 +416,7 @@ var PlayScene = {
         return this.isStanding() && collisionWithTilemap || this._jamping;
     },
     
+    //Si el jugador muere, este método le enviará a la pantalla de GameOver y apaga la música
     onPlayerFell: function(){
 
         this.music.destroy();
@@ -400,6 +430,7 @@ var PlayScene = {
         
     },
 
+    //Si el jugador llega al final del nivel, éste será enviado a la pantalla del final del juego.
     onPlayerWin: function(){
         this.game.state.start('endScene');
     },
@@ -418,7 +449,7 @@ var PlayScene = {
         return this.canJump(collisionWithTilemap) && 
             this.game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR);
     },
-        
+        //Método que determina la dirección del jugador.
     GetMovement: function(){
         var movement = Direction.NONE
         

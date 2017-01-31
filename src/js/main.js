@@ -26,7 +26,7 @@ var BootScene = {
   }
 };
 
-
+//Se carga todo lo referente a la escena 'Play_scene', 'gameover_scene', 'end_scene'
 var PreloaderScene = {
   preload: function () {
     this.loadingBar = this.game.add.sprite(100,300, 'preloader_bar');
