@@ -1,8 +1,13 @@
 var EndScene = {
+    fondoEnd: {},
+
 	create: function () {
-        console.log("Primer nivel terminado");
-       
-        var goText = this.game.add.text(400, 100, "Dislumbré un destello y creí que eras tú.\n Pronto lograré alcanzarte...");
+        
+        this.style = {font: "24px Arial", fill: "#ffffff"};
+        
+        fondoEnd = this.game.add.sprite (0,0,'endShadow');
+
+        var goText = this.game.add.text(400, 100, "Dislumbré un destello y creí que eras tú.\n Pronto lograré alcanzarte...", this.style);
         goText.anchor.set(0.5);
         
         var buttonMenu = this.game.add.button(400, 300, 

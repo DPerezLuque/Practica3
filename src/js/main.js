@@ -45,6 +45,10 @@ var PreloaderScene = {
       this.game.load.image('light', 'images/light.png');
       this.game.load.image('shadowHid', 'images/ShadowHidden.png');
 
+      //End Scene
+      this.game.load.image('endShadow', 'images/ShadowSilhouette.jpg');
+      //GameOver Scene
+      this.game.load.image('GameOverBackG', 'images/FondoGameOver.jpg');
       //Audio
       this.game.load.audio('cave', ['sounds/Muse - Cave (8-bit).mp3', 'Muse_-_Cave_8-bit_.ogg']);
       this.game.load.audio('click', ['Click.mp3', 'Click.ogg']);

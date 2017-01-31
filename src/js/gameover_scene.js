@@ -1,6 +1,8 @@
 var GameOver = {
+  fondoGO: {},
     create: function () {
         console.log("Game Over");
+        fondoGO = this.game.add.sprite (0,0,'GameOverBackG');
         var button = this.game.add.button(400, 300, 
                                           'button', 
                                           this.actionOnClick1, 
