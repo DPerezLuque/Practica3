@@ -3,7 +3,7 @@
 var PlayScene = require('./play_scene.js');
 var GameOver = require('./gameover_scene.js');
 var MenuScene = require('./menu_scene.js');
-var EndScene = require('./end_scene.js')
+var EndScene = require('./end_scene.js');
 
 //  The Google WebFont Loader will look for this object, so create it before loading the script.
 
@@ -12,7 +12,7 @@ var BootScene = {
     // load here assets required for the loading screen
     var style = { font: "65px Arial", fill: "#ffffff", align: "center" }
    
-
+    this.game.load.image('fondoMenu', 'images/ShadowCave.png');
     this.game.load.image('preloader_bar', 'images/preloader_bar.png');
     this.game.load.spritesheet('button', 'images/buttons.png', 168, 70);
     this.game.load.image('logo', 'images/LostShadow.png');
@@ -43,6 +43,7 @@ var PreloaderScene = {
       this.game.load.spritesheet('glow', 'images/glow.png', 32, 32);
       this.game.load.image('sombras', 'images/sombras.png');
       this.game.load.image('light', 'images/light.png');
+      this.game.load.image('shadowHid', 'images/ShadowHidden.png');
 
       //Audio
       this.game.load.audio('cave', ['sounds/Muse - Cave (8-bit).mp3', 'Muse_-_Cave_8-bit_.ogg']);

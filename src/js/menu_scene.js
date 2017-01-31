@@ -6,14 +6,18 @@ var MenuScene = {
     buttonStart: {},
 
     menuMusic: {},
+    fondoMenu: {},
     click: {},
 
     create: function () {
 
           click = this.game.add.audio('click');
            menuMusic = this.game.add.audio('start');
-            menuMusic.play();
+           menuMusic.play();
+           menuMusic.loop= true; 
 
+        fondoMenu = this.game.add.sprite (0,0,'fondoMenu');
+        
         logo = this.game.add.sprite(this.game.world.centerX, 
                                         this.game.world.centerY, 
                                         'logo');
